@@ -1,0 +1,37 @@
+security :
+  enable_authenticator_manager: true
+  password_hashers :
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+  # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+  providers :
+    users :
+      entity : { class : App\Entity\User, property : email }
+    usersId :
+      entity : { class : App\Entity\User, property : id }
+  firewalls :
+    dev :
+      pattern : ^/(_(profiler|wdt)|css|images|js)/
+      security : false
+
+    health :
+      pattern : ^/api/health$
+      security : false
+      stateless : true
+
+    main :
+      pattern : ^/
+      lazy : true
+      provider : users
+      context : boardworks
+      switch_user :
+        provider : usersId
+        role : CAN_SWITCH_USER
+      entry_point : App\Security\Application\LoginFormAuthenticator
+      custom_authenticators :
+        - App\Security\Application\LoginFormAuthenticator
+
+  # Easy way to control access for large sections of your site
+  # Note: Only the *first* access control that matches will be used
+  access_control :
+    - { path : ^/samm-model-pdf, roles : PUBLIC_ACCESS }
+    - { path : ^/, roles : PUBLIC_ACCESS }
