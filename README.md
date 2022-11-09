@@ -1,12 +1,5 @@
-## Generating the PDF
-Run the following script (sudo is NOT needed):
-```
-sh scripts/generate_pdf.sh 
-```
-This will automatically prepare the DB, sync with the OWASP SAMM core repo, and generate the pdf in the /export folder
-
 ## Syncing from yaml files
-In order to fill the empty database with records do the following:
+After the project setup in order to fill the empty database with records do the following:
 
  ### Automatic:
  Run the following script (sudo is NOT needed):
