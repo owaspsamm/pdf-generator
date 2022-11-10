@@ -1,0 +1,6 @@
+name: "SAMM PDF generator creator"
+description: "Create the SAMM PDF from model files"
+author: "SAMM core team"
+runs:
+  using: "docker"
+  image: "Dockerfile"
