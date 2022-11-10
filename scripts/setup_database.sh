@@ -12,6 +12,3 @@ php bin/console doctrine:migrations:migrate --no-interaction
 echo "clone / pull OWASP-SAMM model repository"
 sh ./scripts/clone_owasp_samm.sh
 
-echo "Syncing from OWASP SAMM repo..."
-php bin/console app:sync-from-owasp-samm
-
