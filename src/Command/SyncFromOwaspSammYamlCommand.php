@@ -17,6 +17,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
@@ -24,13 +25,17 @@ use Throwable;
 class SyncFromOwaspSammYamlCommand extends Command
 {
     protected static $defaultName = 'app:sync-from-owasp-samm';
+    private const ROOT_FOLDER_COMMAND_PARAMETER_NAME = "root";
+    private const MODEL_FOLDER_COMMAND_PARAMETER_NAME = "model";
+    private const SKIP_DELETE_COMMAND_PARAMETER_NAME = "skipDelete";
+
 
     /**
      * SyncFromOwaspSammYamlCommand constructor.
      * @param YamlModelsToDbRecordsSyncer $dbRecordsSyncer
-     * @param EntityManagerInterface $entityManager
+     * @param EntityManagerInterface      $entityManager
      */
-    public function __construct(private YamlModelsToDbRecordsSyncer $dbRecordsSyncer, private EntityManagerInterface $entityManager,)
+    public function __construct(private YamlModelsToDbRecordsSyncer $dbRecordsSyncer, private EntityManagerInterface $entityManager)
     {
         parent::__construct();
     }
@@ -40,12 +45,15 @@ class SyncFromOwaspSammYamlCommand extends Command
      */
     protected function configure()
     {
+        $this->addArgument(self::ROOT_FOLDER_COMMAND_PARAMETER_NAME, InputArgument::OPTIONAL, 'root folder');
+        $this->addArgument(self::MODEL_FOLDER_COMMAND_PARAMETER_NAME, InputArgument::OPTIONAL, 'model folder');
+        $this->addArgument(self::SKIP_DELETE_COMMAND_PARAMETER_NAME, InputArgument::OPTIONAL, 'skip delete', false);
         $this->setDescription("Gets data from yaml files and adds/updates/removes records to the DB according to the files");
     }
 
     /**
      * The order in which the steps are invoked should be right, otherwise it may fail for foreign key constraints.
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      * @return int
      * @throws Throwable
@@ -53,6 +61,17 @@ class SyncFromOwaspSammYamlCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $rootFolder = $input->getArgument(self::ROOT_FOLDER_COMMAND_PARAMETER_NAME);
+        if ($rootFolder) {
+            $this->dbRecordsSyncer->setRootFolder($rootFolder);
+        }
+        $modelFolder = $input->getArgument(self::MODEL_FOLDER_COMMAND_PARAMETER_NAME);
+        if ($modelFolder) {
+            $this->dbRecordsSyncer->setModelFolder($modelFolder);
+        }
+        $skipDelete = $input->getArgument(self::SKIP_DELETE_COMMAND_PARAMETER_NAME);
+        $this->dbRecordsSyncer->setSkipDelete((bool)$skipDelete);
+
         $this->entityManager->getConnection()->beginTransaction();
         try {
             // changing the order may fail because of FK constraints
@@ -83,8 +102,9 @@ class SyncFromOwaspSammYamlCommand extends Command
                 [Stream::class, $addedStreams, $modifiedStreams, $deletedStreams],
                 [Activity::class, $addedActivities, $modifiedActivities, $deletedActivities],
                 [AnswerSet::class, $addedAnswerSets, $modifiedAnswerSets, $deletedAnswerSets],
-                [Question::class, $addedQuestions, $modifiedQuestions, $deletedQuestions]
+                [Question::class, $addedQuestions, $modifiedQuestions, $deletedQuestions],
             ])->render();
+
         return Command::SUCCESS;
     }
 }
