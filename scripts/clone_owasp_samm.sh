@@ -30,6 +30,8 @@ if [ ! -d "private/$filename" ]; then
     cd private
     echo "Cloning project $GITHUB_REPO"
     git clone "$GITHUB_REPO"
+    echo "cd $filename"
+    cd $filename
     echo "git checkout $BRANCH"
     git checkout "$BRANCH"
     cd ..
@@ -44,12 +46,11 @@ else
   cd ..
 fi
 
+cd ..
+
 echo 'Syncing...'
 php bin/console app:sync-from-owasp-samm "$filename" "$MODEL"
 if [ -n "$LANGUAGE" ]; then
-  echo "Syncing from $LANGUAGE..."
+  echo "Syncing from $LANGUAGE/$MODEL..."
   php bin/console app:sync-from-owasp-samm "$filename" "$LANGUAGE/$MODEL" 1
 fi
-
-
-#https://github.com/owaspsamm/i18n-FR.git
