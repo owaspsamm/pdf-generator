@@ -1,19 +1,43 @@
 #!/bin/sh
 GITHUB_REPO=https://github.com/owaspsamm/core.git
+BRANCH='main'
+MODEL='model'
+if [ -n "$PARAM_URL" ]; then
+  GITHUB_REPO=$PARAM_URL
+fi
+
+if [ -n "$PARAM_BRANCH" ]; then
+  BRANCH=$PARAM_BRANCH
+fi
+
+if [ -n "$PARAM_MODEL" ]; then
+  MODEL=$PARAM_MODEL
+fi
+
+if [ -n "$PARAM_LANGUAGE" ]; then
+  LANGUAGE=$PARAM_LANGUAGE
+fi
+
+
+basename=$(basename "$GITHUB_REPO")
+filename=${basename%.*}
 
 echo '\nExecuting migrations (if any)...'
 php bin/console doctrine:migrations:migrate --no-interaction
 
-if [ ! -d "private/core" ]; then
+if [ ! -d "private/$filename" ]; then
     mkdir -p private
     cd private
-    echo 'Cloning project...'
-    git clone $GITHUB_REPO
+    echo "Cloning project $GITHUB_REPO"
+    git clone "$GITHUB_REPO"
+    echo "git checkout $BRANCH"
+    git checkout "$BRANCH"
     cd ..
 else
-  cd private/core
+  cd "private/$filename"
   echo 'Discarding local changes to OWASP SAMM model (if any)...'
-  git checkout -- .
+  echo "git checkout $BRANCH"
+  git checkout "$BRANCH"
   echo 'Pulling latest changes...'
   git pull
   cd ..
@@ -21,4 +45,11 @@ else
 fi
 
 echo 'Syncing...'
-php bin/console app:sync-from-owasp-samm
+php bin/console app:sync-from-owasp-samm "$filename" "$MODEL"
+if [ -n "$LANGUAGE" ]; then
+  echo "Syncing from $LANGUAGE..."
+  php bin/console app:sync-from-owasp-samm "$filename" "$LANGUAGE/$MODEL" 1
+fi
+
+
+#https://github.com/owaspsamm/i18n-FR.git
