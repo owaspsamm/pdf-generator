@@ -259,7 +259,7 @@ class YamlModelsToDbRecordsSyncer
             }
 
             $oldMaturityLevelId = $practiceLevelEntity->getMaturityLevel()?->getExternalId() ?? "";
-            $newMaturityLevelId = $parsedYamlFile["maturitylevel"];
+            $newMaturityLevelId = $parsedYamlFile["maturityLevel"];
             if ($this->arePropertiesDifferent($oldMaturityLevelId, $newMaturityLevelId)) {
                 $oldMaturityLevelEntity = $practiceLevelEntity->getMaturityLevel();
                 $practiceLevelEntity->setMaturityLevel($this->maturityLevelRepository->findOneBy(["externalId" => $newMaturityLevelId]));
@@ -446,7 +446,7 @@ class YamlModelsToDbRecordsSyncer
             }
 
             $oldAnswerSetId = $questionEntity->getAnswerSet()?->getExternalId() ?? "";
-            $newAnswerSetId = $parsedYamlFile["answerset"];
+            $newAnswerSetId = $parsedYamlFile["answerSet"];
             if ($this->arePropertiesDifferent($oldAnswerSetId, $newAnswerSetId)) {
                 $oldAnswerSetEntity = $questionEntity->getAnswerSet();
                 $questionEntity->setAnswerSet($this->answerSetRepository->findOneBy(["externalId" => $newAnswerSetId]));
