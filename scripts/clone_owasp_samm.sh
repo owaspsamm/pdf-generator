@@ -35,6 +35,7 @@ if [ ! -d "private/$filename" ]; then
     echo "git checkout $BRANCH"
     git checkout "$BRANCH"
     cd ..
+    cd ..
 else
   cd "private/$filename"
   echo 'Discarding local changes to OWASP SAMM model (if any)...'
