@@ -46,6 +46,9 @@ else
   cd ..
 fi
 
+echo 'Current folder...'
+pwd
+
 echo 'Syncing...'
 php bin/console app:sync-from-owasp-samm "$filename" "$MODEL"
 if [ -n "$LANGUAGE" ]; then
